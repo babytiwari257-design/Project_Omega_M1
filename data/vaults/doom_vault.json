@@ -1,0 +1,15 @@
+{
+  "handle": "doom",
+  "history": [
+    {
+      "role": "user",
+      "content": "good night byee",
+      "timestamp": "2026-11-01 01:15:38"
+    },
+    {
+      "role": "assistant",
+      "content": "Good night! \ud83c\udf19 Take care and catch you later.",
+      "timestamp": "2026-11-01 01:15:38"
+    }
+  ]
+}

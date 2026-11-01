@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Omega (M-1) | Aris Industries</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Markdown Parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- High-Precision MathJax SVG Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: { fontCache: 'global' },
+      startup: { typeset: false }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    :root {
+      --bg: #07090e;
+      --sidebar: #0c1017;
+      --card: #111722;
+      --card-border: rgba(0, 229, 255, 0.18);
+      --accent-cyan: #00e5ff;
+      --accent-blue: #3b82f6;
+      --glow: rgba(0, 229, 255, 0.25);
+      --text: #e6edf3;
+      --muted: #8b949e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
+
+    /* Sidebar */
+    aside {
+      width: 270px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 18px;
+      gap: 16px;
+    }
+    .brand-box {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 0 0 14px var(--glow);
+    }
+    .badge {
+      font-size: 10px;
+      background: rgba(0, 229, 255, 0.1);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .vault-status {
+      font-size: 12px;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 14px;
+      line-height: 1.8;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .action-btn {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+    .action-btn:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.05);
+    }
+
+    /* Main Stage */
+    .main-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: radial-gradient(circle at 50% 0%, rgba(0, 229, 255, 0.05) 0%, transparent 65%);
+    }
+    nav {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .system-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 1.2px;
+    }
+
+    /* Message Thread */
+    #chatLog {
+      flex: 1;
+      overflow-y: auto;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      max-width: 920px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .bubble-row { display: flex; flex-direction: column; gap: 6px; }
+    .bubble-row.user { align-items: flex-end; }
+    .bubble-row.assistant { align-items: flex-start; }
+    .bubble-row.lobby { align-items: flex-start; }
+
+    .role-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .user .role-label { color: var(--accent-blue); }
+    .assistant .role-label { color: var(--accent-cyan); }
+    .lobby .role-label { color: #10b981; }
+
+    .msg-content {
+      padding: 16px 22px;
+      border-radius: 14px;
+      font-size: 15px;
+      line-height: 1.7;
+      max-width: 88%;
+      word-break: break-word;
+    }
+    .user .msg-content {
+      background: linear-gradient(135deg, #1e40af, #2563eb);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+    }
+    .assistant .msg-content {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      color: #e6edf3;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+    .lobby .msg-content {
+      background: #0d281e;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #d1fae5;
+    }
+
+    /* MathJax Clear HD Formula Display */
+    .msg-content mjx-container {
+      margin: 10px 0 !important;
+      display: inline-block !important;
+      outline: none;
+      color: #00e5ff !important;
+    }
+    .msg-content mjx-container[jax="SVG"][display="true"] {
+      display: block !important;
+      text-align: center;
+      margin: 14px 0 !important;
+    }
+
+    /* Floating Capsule Input */
+    .input-shell {
+      padding: 20px 30px;
+      max-width: 920px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .capsule {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 30px;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    }
+    .capsule:focus-within {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 25px var(--glow);
+    }
+    .capsule input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 15px;
+      padding: 10px 8px;
+    }
+    .capsule button {
+      background: linear-gradient(135deg, var(--accent-cyan), #0091ea);
+      border: none;
+      color: #050b14;
+      font-weight: 700;
+      padding: 10px 22px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    /* Modal Overlays */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 9, 14, 0.96);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-card {
+      background: var(--card);
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 0 40px var(--glow);
+      border-radius: 14px;
+      padding: 32px;
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+    }
+    .modal-card input {
+      width: 100%;
+      padding: 12px 14px;
+      margin: 8px 0;
+      background: var(--bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+    }
+    .modal-card button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: var(--accent-cyan);
+      color: #07090e;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Auth Dialog -->
+  <div id="authOverlay" class="modal-overlay">
+    <div class="modal-card">
+      <h2 style="font-family:'Space Grotesk'; letter-spacing:1px; color:var(--accent-cyan); margin-bottom: 6px;">OMEGA MARK-1</h2>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:18px;">Aris Industries Secure Protocol</p>
+      <input type="text" id="authHandle" placeholder="User Handle (e.g. mayank)" />
+      <input type="password" id="authPin" placeholder="Security PIN" />
+      <button onclick="handleLogin()">AUTHENTICATE</button>
+      <p id="authMsg" style="color:#ef4444; font-size:12px; margin-top:12px;"></p>
+    </div>
+  </div>
+
+  <!-- Tactical Room Modal -->
+  <div id="roomOverlay" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <h3 style="font-family:'Space Grotesk'; letter-spacing:1px; color:#10b981; margin-bottom: 6px;">TACTICAL ROOM LINK</h3>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:18px;">Two-Operator Encrypted Channel</p>
+      <input type="text" id="roomIdInput" placeholder="Room ID (e.g. quantum_deck)" />
+      <input type="password" id="roomPassInput" placeholder="Secret Passcode" />
+      <button onclick="joinTacticalRoom()" style="background:#10b981;">CONNECT ROOM</button>
+      <button onclick="closeRoomModal()" style="background:transparent; color:var(--muted); border:1px solid #333; margin-top:6px;">DISMISS</button>
+      <p id="roomMsg" style="color:#ef4444; font-size:12px; margin-top:12px;"></p>
+    </div>
+  </div>
+
+  <!-- Left Sidebar -->
+  <aside>
+    <div class="brand-box">
+      <span>OMEGA</span>
+      <span class="badge">M-1</span>
+    </div>
+    <div class="vault-status">
+      <div>OPERATOR: <span id="operatorTag" style="color:var(--accent-cyan);">OFFLINE</span></div>
+      <div>CORE: <span style="color:#10b981;">ARIS NEURAL</span></div>
+      <div>MODE: <span id="modeTag" style="color:var(--accent-cyan);">VAULT AI</span></div>
+    </div>
+
+    <!-- Mode Buttons -->
+    <button class="action-btn" onclick="openRoomModal()">
+      <span>🔗 TACTICAL ROOM</span>
+      <span id="roomStatusBadge" style="font-size:10px; color:#10b981;">OFF</span>
+    </button>
+    <button class="action-btn" onclick="switchToAiMode()" id="aiModeBtn" style="display:none;">
+      <span>🧠 RETURN TO AI</span>
+    </button>
+
+    <div style="flex:1;"></div>
+    <div style="font-size:11px; color:var(--muted); line-height:1.5; font-family:'JetBrains Mono', monospace;">
+      MATH ENGINE: MATHJAX SVG<br>ROOM PASSCODE ENFORCED
+    </div>
+  </aside>
+
+  <!-- Main View -->
+  <div class="main-stage">
+    <nav>
+      <div class="system-title" id="stageTitle">PROJECT OMEGA // ACADEMIC RESEARCH DECK</div>
+      <div class="badge" id="deckBadge">ARIS CORE ACTIVE</div>
+    </nav>
+
+    <div id="chatLog"></div>
+
+    <div class="input-shell">
+      <div class="capsule">
+        <input type="text" id="queryInput" placeholder="Command Omega or input scientific query..." onkeydown="if(event.key==='Enter') dispatchAction()" />
+        <button onclick="dispatchAction()">EXECUTE</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeUser = localStorage.getItem("omega_handle") || "";
+    let currentMode = "AI";
+    let currentRoom = "";
+    let currentPass = "";
+    let lobbyPollTimer = null;
+
+    async function handleLogin() {
+      const handle = document.getElementById("authHandle").value.trim();
+      const pin = document.getElementById("authPin").value.trim();
+      const msgBox = document.getElementById("authMsg");
+
+      if (!handle || !pin) {
+        msgBox.innerText = "Credentials required";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ handle, pin })
+        });
+        const data = await res.json();
+
+        if (data.status === "success") {
+          activeUser = data.handle;
+          localStorage.setItem("omega_handle", activeUser);
+          document.getElementById("authOverlay").style.display = "none";
+          document.getElementById("operatorTag").innerText = activeUser.toUpperCase();
+          renderHistory(data.history || []);
+        } else {
+          msgBox.innerText = data.message || "Access Denied";
+        }
+      } catch (err) {
+        msgBox.innerText = "Daemon connection failed";
+      }
+    }
+
+    function renderHistory(history) {
+      const log = document.getElementById("chatLog");
+      log.innerHTML = "";
+      history.forEach(item => appendBubble(item.role, item.content));
+    }
+
+    function appendBubble(role, content, senderName = "") {
+      const log = document.getElementById("chatLog");
+      const row = document.createElement("div");
+      row.className = `bubble-row ${role}`;
+
+      const label = document.createElement("span");
+      label.className = "role-label";
+
+      if (role === "user") {
+        label.innerText = activeUser.toUpperCase();
+      } else if (role === "lobby") {
+        label.innerText = senderName.toUpperCase();
+      } else {
+        label.innerText = "OMEGA (M-1)";
+      }
+
+      const msg = document.createElement("div");
+      msg.className = "msg-content";
+
+      if (role === "assistant") {
+        // Step 1: Render clean markdown
+        msg.innerHTML = marked.parse(content);
+        row.appendChild(label);
+        row.appendChild(msg);
+        log.appendChild(row);
+
+        // Step 2: Typeset equations with MathJax
+        if (window.MathJax && window.MathJax.typesetPromise) {
+          window.MathJax.typesetPromise([msg]).catch(() => {});
+        }
+      } else {
+        msg.innerText = content;
+        row.appendChild(label);
+        row.appendChild(msg);
+        log.appendChild(row);
+      }
+
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function dispatchAction() {
+      if (currentMode === "AI") {
+        sendAiQuery();
+      } else {
+        sendRoomMessage();
+      }
+    }
+
+    async function sendAiQuery() {
+      const input = document.getElementById("queryInput");
+      const prompt = input.value.trim();
+      if (!prompt) return;
+
+      appendBubble("user", prompt);
+      input.value = "";
+
+      try {
+        const res = await fetch("/api/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ handle: activeUser, prompt })
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+          appendBubble("assistant", data.response);
+        } else {
+          appendBubble("assistant", "[Execution Fault]: " + (data.response || data.message));
+        }
+      } catch (err) {
+        appendBubble("assistant", "[Offline]: Daemon communication disrupted.");
+      }
+    }
+
+    // Room Linking Functions
+    function openRoomModal() {
+      document.getElementById("roomOverlay").style.display = "flex";
+    }
+
+    function closeRoomModal() {
+      document.getElementById("roomOverlay").style.display = "none";
+    }
+
+    async function joinTacticalRoom() {
+      const room = document.getElementById("roomIdInput").value.trim();
+      const pass = document.getElementById("roomPassInput").value.trim();
+      const msgBox = document.getElementById("roomMsg");
+
+      if (!room || !pass) {
+        msgBox.innerText = "Room ID and Passcode required.";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/lobby", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "join", room_id: room, passcode: pass, sender: activeUser })
+        });
+        const data = await res.json();
+
+        if (data.status === "success") {
+          currentRoom = room;
+          currentPass = pass;
+          currentMode = "ROOM";
+          closeRoomModal();
+
+          document.getElementById("modeTag").innerText = "TACTICAL ROOM";
+          document.getElementById("modeTag").style.color = "#10b981";
+          document.getElementById("stageTitle").innerText = `TACTICAL LINK // ROOM: ${currentRoom.toUpperCase()}`;
+          document.getElementById("deckBadge").innerText = "PEER ENCRYPTED";
+          document.getElementById("roomStatusBadge").innerText = "CONNECTED";
+          document.getElementById("aiModeBtn").style.display = "block";
+          document.getElementById("queryInput").placeholder = `Send message to room '${currentRoom}'...`;
+
+          document.getElementById("chatLog").innerHTML = "";
+          pollRoomMessages();
+          if (lobbyPollTimer) clearInterval(lobbyPollTimer);
+          lobbyPollTimer = setInterval(pollRoomMessages, 2000);
+        } else {
+          msgBox.innerText = data.message || "Failed to join room";
+        }
+      } catch (e) {
+        msgBox.innerText = "Server error while connecting";
+      }
+    }
+
+    async function sendRoomMessage() {
+      const input = document.getElementById("queryInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = "";
+      try {
+        await fetch("/api/lobby", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "send",
+            room_id: currentRoom,
+            passcode: currentPass,
+            sender: activeUser,
+            text: text
+          })
+        });
+        pollRoomMessages();
+      } catch (e) {}
+    }
+
+    async function pollRoomMessages() {
+      if (currentMode !== "ROOM") return;
+      try {
+        const res = await fetch("/api/lobby", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "fetch", room_id: currentRoom, passcode: currentPass })
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+          const log = document.getElementById("chatLog");
+          log.innerHTML = "";
+          data.messages.forEach(m => {
+            appendBubble("lobby", m.text, `${m.sender} [${m.time}]`);
+          });
+        }
+      } catch (e) {}
+    }
+
+    function switchToAiMode() {
+      currentMode = "AI";
+      if (lobbyPollTimer) clearInterval(lobbyPollTimer);
+      document.getElementById("modeTag").innerText = "VAULT AI";
+      document.getElementById("modeTag").style.color = "var(--accent-cyan)";
+      document.getElementById("stageTitle").innerText = "PROJECT OMEGA // ACADEMIC RESEARCH DECK";
+      document.getElementById("deckBadge").innerText = "ARIS CORE ACTIVE";
+      document.getElementById("roomStatusBadge").innerText = "OFF";
+      document.getElementById("aiModeBtn").style.display = "none";
+      document.getElementById("queryInput").placeholder = "Command Omega or input scientific query...";
+
+      fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ handle: activeUser, pin: "" })
+      }).then(r => r.json()).then(d => {
+        renderHistory(d.history || []);
+      });
+    }
+  </script>
+</body>
+</html>

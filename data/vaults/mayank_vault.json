@@ -1,0 +1,35 @@
+{
+  "handle": "mayank",
+  "history": [
+    {
+      "role": "user",
+      "content": "hello",
+      "timestamp": "2026-10-31 23:11:45"
+    },
+    {
+      "role": "assistant",
+      "content": "**Omega (Mark\u20111) at your service.** \ud83d\ude4f  \n\nNamaste! How can I assist you today?  \n- \u0915\u094b\u0908 **science**\u2011related \u0938\u0935\u093e\u0932 \u0939\u0948?  \n- \u0917\u0923\u093f\u0924/\u092d\u094c\u0924\u093f\u0915\u0940/\u0930\u0938\u093e\u092f\u0928\u2011\u0935\u093f\u091c\u094d\u091e\u093e\u0928, \u0907\u0924\u093f\u0939\u093e\u0938 \u092f\u093e \u0915\u093f\u0938\u0940 interdisciplinary \u0935\u093f\u0937\u092f \u092e\u0947\u0902 \u092e\u0926\u0926 \u091a\u093e\u0939\u093f\u090f?  \n\nFeel free to tell me the topic or problem, and I\u2019ll give you a concise, structured explanation in English or Hinglish as you prefer. \ud83d\ude80",
+      "timestamp": "2026-10-31 23:11:45"
+    },
+    {
+      "role": "user",
+      "content": "\"Main Mayank hoon, Class 11 me hoon aur JEE ke liye Mechanics prepare kar raha hoon.\"",
+      "timestamp": "2026-10-31 23:23:14"
+    },
+    {
+      "role": "assistant",
+      "content": "**Namaste Mayank! \ud83d\ude4f**  \nClass\u202f11\u2011ke JEE\u2011Mechanics ke liye aapko ek **structured roadmap** aur **quick\u2011reference cheat\u2011sheet** chahiye, toh main aapko yeh dono de raha hoon.  \n\n---\n\n## 1\ufe0f\u20e3 Mechanics ka Overall Blueprint (Class\u202f11)\n\n| Chapter | Core Concepts | Typical JEE Weightage | Must\u2011Know Formulae |\n|---------|---------------|-----------------------|--------------------|\n| Kinematics (1\u2011D & 2\u2011D) | Motion equations, projectile, relative velocity | 15\u202f% | \\(v = u + at\\), \\(s = ut + \\frac12 a t^2\\), \\(R = \\frac{u^2 \\sin2\\theta}{g}\\) |\n| Newton\u2019s Laws | Force, friction, inclined plane, circular motion | 20\u202f% | \\(F = ma\\), \\(f = \\mu N\\), \\(a_c = \\frac{v^2}{r}\\) |\n| Work, Energy & Power | Conservative vs non\u2011conservative forces, KE\u2011PE theorem | 12\u202f% | \\(W = \\vec F\\cdot\\vec s\\), \\(K = \\frac12 mv^2\\), \\(U = mgh\\) |\n| Rotational Motion | Torque, moment of inertia, angular momentum | 13\u202f% | \\(\\tau = I\\alpha\\), \\(I = \\sum mr^2\\), \\(L = I\\omega\\) |\n| Gravitation | Universal law, satellite motion, Kepler\u2019s laws | 10\u202f% | \\(F = G\\frac{m_1m_2}{r^2}\\), \\(v = \\sqrt{\\frac{GM}{r}}\\) |\n| Simple Harmonic Motion | Oscillations, energy in SHM, damped & forced | 10\u202f% | \\(x = A\\cos(\\omega t + \\phi)\\), \\(\\omega = \\sqrt{k/m}\\) |\n| Fluid Mechanics (optional for JEE\u2011Main) | Buoyancy, Bernoulli, viscosity | 5\u202f% | \\(F_B = \\rho V g\\), \\(P + \\frac12\\rho v^2 + \\rho gh = const\\) |\n\n> **Tip:** JEE\u2011Advanced ke liye \u201cConceptual depth + problem\u2011solving speed\u201d dono zaroori hain. Isliye har formula ko **derive** karna aur **2\u20113 variations** solve karna bahut important hai.\n\n---\n\n## 2\ufe0f\u20e3 Daily / Weekly Study Schedule (12\u202fweeks)\n\n| Day | Activity | Duration | Focus |\n|-----|----------|----------|-------|\n| **Mon\u2011Wed\u2011Fri** | Theory + Derivation | 1\u202fhr | Read NCERT (Chapter\u202f1\u20117), write derivations in your own words. |\n| **Tue\u2011Thu\u2011Sat** | Problem\u2011Set | 1.5\u202fhr | Solve 8\u201110 JEE\u2011level questions (vary difficulty). |\n| **Sun** | Mock + Review | 2\u202fhr | Full\u2011section timed test \u2192 error\u2011analysis sheet. |\n| **Every 2\u202fweeks** | **Concept\u2011Map** | 30\u202fmin | Draw a mind\u2011map linking equations, units, and typical applications. |\n| **Every month** | **Integration Session** | 2\u202fhr | Combine Mechanics with Maths (vectors, calculus). Solve \u201cintegration\u201d problems (e.g., find work done using integral of \\(F\\cdot ds\\)). |\n\n---\n\n## 3\ufe0f\u20e3 \u201cCheat\u2011Sheet\u201d \u2013 Must\u2011Know Derivations (in <\u202f2\u202fpages)\n\n1. **Kinematic Equation Derivation** \u2013 Start from \\(a = dv/dt\\) \u2192 integrate twice.  \n2. **Work\u2013Energy Theorem** \u2013 \\(W = \\int \\vec F \\cdot d\\vec s = \\Delta K\\).  \n3. **Torque & Angular Momentum** \u2013 \\(\\vec \\tau = \\vec r \\times \\vec F\\); differentiate \\( \\vec L = \\vec r \\times \\vec p\\).  \n4. **Moment of Inertia for Composite Bodies** \u2013 Use **Parallel Axis Theorem**: \\(I = I_{\\text{CM}} + Md^2\\).  \n5. **Gravitational Potential Energy** \u2013 \\(U = -\\frac{GMm}{r}\\) (derive from work against gravity).  \n\n*(Print it, keep it on your desk, and rewrite it once a week \u2013 memory retention skyrockets.)*\n\n---\n\n## 4\ufe0f\u20e3 Problem\u2011Solving Strategies (JEE\u2011Style)\n\n| Strategy | When to Use | Quick Checklist |\n|----------|-------------|-----------------|\n| **Free\u2011Body Diagram (FBD) First** | Every dynamics problem | Identify all forces, choose positive direction, write \\(\u2211F = ma\\). |\n| **Choose the Right Coordinate System** | Inclined planes, circular motion | Align axes with motion \u2192 reduces trig. |\n| **Energy Method** | When forces are conservative or path\u2011independent | Write \\(K_i + U_i = K_f + U_f\\). |\n| **Angular Kinematics** | Rotational problems | Convert linear to angular: \\(a_t = r\\alpha\\), \\(v_t = r\\omega\\). |\n| **Dimensional Check**",
+      "timestamp": "2026-10-31 23:23:14"
+    },
+    {
+      "role": "user",
+      "content": "\"Mujhe batao main kaunsi class me hoon aur kis exam ke liye kaunsa topic padh raha hoon?\"",
+      "timestamp": "2026-10-31 23:23:39"
+    },
+    {
+      "role": "assistant",
+      "content": "**Aapki current situation ka short summary:**  \n\n| **Aapka naam** | **Class** | **Exam ke liye preparation** | **Abhi ka focus subject** |\n|----------------|-----------|------------------------------|---------------------------|\n| Mayank | **Class\u202f11** | **JEE (JEE\u2011Main\u202f+\u202fJEE\u2011Advanced)** | **Mechanics** (Kinematics, Newton\u2019s Laws, Work\u2011Energy\u2011Power, Rotational Motion, Gravitation, SHM, etc.) |\n\nIska matlab aap **Class\u202f11\u2011level ke NCERT Mechanics chapters** ko **JEE\u2011level problem\u2011solving depth** ke saath padh rahe hain. Agar aapko koi specific chapter ya concept ke baare mein detail chahiye, bas batayein! \ud83d\ude80",
+      "timestamp": "2026-10-31 23:23:39"
+    }
+  ]
+}
