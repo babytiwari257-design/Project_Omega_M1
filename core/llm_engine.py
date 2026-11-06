@@ -5,8 +5,7 @@ import urllib.parse
 import urllib.error
 
 # Environment variable se key read karega (local me ya Render dashboard se)
-GROQ_API_KEY = os.environ.get("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
-")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 ACTIVE_MODELS = [
