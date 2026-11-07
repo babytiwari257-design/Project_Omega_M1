@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Omega (M-1) | Aris Industries</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  
+
   <!-- Markdown Parser -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
@@ -46,7 +46,7 @@
       display: flex;
       flex-direction: column;
       padding: 24px 18px;
-      gap: 16px;
+      gap: 14px;
     }
     .brand-box {
       font-family: 'Space Grotesk', sans-serif;
@@ -82,7 +82,7 @@
       color: var(--text);
       padding: 10px 14px;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 12px;
       font-family: 'JetBrains Mono', monospace;
       cursor: pointer;
       display: flex;
@@ -92,7 +92,7 @@
     }
     .action-btn:hover {
       border-color: var(--accent-cyan);
-      background: rgba(0, 229, 255, 0.05);
+      background: rgba(0, 229, 255, 0.08);
     }
 
     /* Main Stage */
@@ -172,6 +172,26 @@
       color: #d1fae5;
     }
 
+    /* VISION Download Button inside Chat */
+    .vision-dl-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: rgba(0, 229, 255, 0.14);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .vision-dl-btn:hover {
+      background: var(--accent-cyan);
+      color: #050b14;
+    }
+
     /* MathJax Clear HD Formula Display */
     .msg-content mjx-container {
       margin: 10px 0 !important;
@@ -187,7 +207,7 @@
 
     /* Floating Capsule Input */
     .input-shell {
-      padding: 20px 30px;
+      padding: 16px 30px 22px;
       max-width: 920px;
       width: 100%;
       margin: 0 auto;
@@ -196,26 +216,42 @@
       background: var(--card);
       border: 1px solid var(--card-border);
       border-radius: 30px;
-      padding: 6px 16px;
+      padding: 6px 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
     }
     .capsule:focus-within {
       border-color: var(--accent-cyan);
       box-shadow: 0 0 25px var(--glow);
     }
-    .capsule input {
+    .upload-trigger {
+      background: rgba(0, 229, 255, 0.1);
+      border: 1px solid var(--card-border);
+      color: var(--accent-cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .upload-trigger:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.2);
+    }
+    .capsule input[type="text"] {
       flex: 1;
       background: transparent;
       border: none;
       outline: none;
       color: #fff;
       font-size: 15px;
-      padding: 10px 8px;
+      padding: 10px 6px;
     }
-    .capsule button {
+    .exec-btn {
       background: linear-gradient(135deg, var(--accent-cyan), #0091ea);
       border: none;
       color: #050b14;
@@ -271,6 +307,9 @@
 </head>
 <body>
 
+  <!-- Hidden File Input for VISION Multi-Format Scanner -->
+  <input type="file" id="visionFileInput" style="display:none;" onchange="handleVisionFileUpload(event)" />
+
   <!-- Auth Dialog -->
   <div id="authOverlay" class="modal-overlay">
     <div class="modal-card">
@@ -305,10 +344,19 @@
     <div class="vault-status">
       <div>OPERATOR: <span id="operatorTag" style="color:var(--accent-cyan);">OFFLINE</span></div>
       <div>CORE: <span style="color:#10b981;">ARIS NEURAL</span></div>
+      <div>VISION: <span style="color:var(--accent-cyan);">ONLINE</span></div>
       <div>MODE: <span id="modeTag" style="color:var(--accent-cyan);">VAULT AI</span></div>
     </div>
 
-    <!-- Mode Buttons -->
+    <!-- VISION & Tactical Action Buttons -->
+    <button class="action-btn" onclick="triggerFileUpload()">
+      <span>📎 SCAN & FIX FILE</span>
+      <span style="font-size:10px; color:var(--accent-cyan);">VISION</span>
+    </button>
+    <button class="action-btn" onclick="triggerDesktopScan()">
+      <span>🖥️ SCAN PC FILES</span>
+      <span style="font-size:10px; color:#10b981;">AUTO</span>
+    </button>
     <button class="action-btn" onclick="openRoomModal()">
       <span>🔗 TACTICAL ROOM</span>
       <span id="roomStatusBadge" style="font-size:10px; color:#10b981;">OFF</span>
@@ -319,7 +367,7 @@
 
     <div style="flex:1;"></div>
     <div style="font-size:11px; color:var(--muted); line-height:1.5; font-family:'JetBrains Mono', monospace;">
-      MATH ENGINE: MATHJAX SVG<br>ROOM PASSCODE ENFORCED
+      VISION ENGINE: INTEGRATED<br>AUTO-FIX & FILE FORGE ON
     </div>
   </aside>
 
@@ -327,15 +375,16 @@
   <div class="main-stage">
     <nav>
       <div class="system-title" id="stageTitle">PROJECT OMEGA // ACADEMIC RESEARCH DECK</div>
-      <div class="badge" id="deckBadge">ARIS CORE ACTIVE</div>
+      <div class="badge" id="deckBadge">OMEGA + VISION ACTIVE</div>
     </nav>
 
     <div id="chatLog"></div>
 
     <div class="input-shell">
       <div class="capsule">
-        <input type="text" id="queryInput" placeholder="Command Omega or input scientific query..." onkeydown="if(event.key==='Enter') dispatchAction()" />
-        <button onclick="dispatchAction()">EXECUTE</button>
+        <button class="upload-trigger" onclick="triggerFileUpload()" title="Upload any file for VISION auto-scan & bug-fix">📎 FILE</button>
+        <input type="text" id="queryInput" placeholder="Command Omega, build code, or type 'scan pc'..." onkeydown="if(event.key==='Enter') dispatchAction()" />
+        <button class="exec-btn" onclick="dispatchAction()">EXECUTE</button>
       </div>
     </div>
   </div>
@@ -385,7 +434,7 @@
       history.forEach(item => appendBubble(item.role, item.content));
     }
 
-    function appendBubble(role, content, senderName = "") {
+    function appendBubble(role, content, senderName = "", downloadFilename = "") {
       const log = document.getElementById("chatLog");
       const row = document.createElement("div");
       row.className = `bubble-row ${role}`;
@@ -398,20 +447,34 @@
       } else if (role === "lobby") {
         label.innerText = senderName.toUpperCase();
       } else {
-        label.innerText = "OMEGA (M-1)";
+        label.innerText = "OMEGA + VISION";
       }
 
       const msg = document.createElement("div");
       msg.className = "msg-content";
 
       if (role === "assistant") {
-        // Step 1: Render clean markdown
         msg.innerHTML = marked.parse(content);
+
+        // Auto-detect download link in text or explicit filename and render clickable button
+        let dlFile = downloadFilename;
+        if (!dlFile) {
+          const match = content.match(/\/vision\/download\/([^\s`)\]]+)/);
+          if (match) dlFile = match[1];
+        }
+        if (dlFile) {
+          const dlBtn = document.createElement("a");
+          dlBtn.className = "vision-dl-btn";
+          dlBtn.href = `/vision/download/${encodeURIComponent(dlFile)}`;
+          dlBtn.download = dlFile;
+          dlBtn.innerText = `⬇ DOWNLOAD VERIFIED FILE (${dlFile})`;
+          msg.appendChild(dlBtn);
+        }
+
         row.appendChild(label);
         row.appendChild(msg);
         log.appendChild(row);
 
-        // Step 2: Typeset equations with MathJax
         if (window.MathJax && window.MathJax.typesetPromise) {
           window.MathJax.typesetPromise([msg]).catch(() => {});
         }
@@ -449,12 +512,77 @@
         });
         const data = await res.json();
         if (data.status === "success") {
-          appendBubble("assistant", data.response);
+          const dlName = (data.vision && data.vision.file_created) ? data.vision.filename : "";
+          appendBubble("assistant", data.response, "", dlName);
         } else {
           appendBubble("assistant", "[Execution Fault]: " + (data.response || data.message));
         }
       } catch (err) {
         appendBubble("assistant", "[Offline]: Daemon communication disrupted.");
+      }
+    }
+
+    // --- VISION MULTI-FILE UPLOAD & AUTO-FIX ---
+    function triggerFileUpload() {
+      document.getElementById("visionFileInput").click();
+    }
+
+    function handleVisionFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const userInstruction = document.getElementById("queryInput").value.trim() || "Scan, analyze, and auto-fix all bugs or formatting issues.";
+      document.getElementById("queryInput").value = "";
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const content = e.target.result;
+        appendBubble("user", `📎 [VISION SCAN REQUEST]: ${file.name}\n${userInstruction}`);
+
+        try {
+          const res = await fetch("/api/vision/scan", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              handle: activeUser || "friend",
+              filename: file.name,
+              content: content,
+              instruction: userInstruction
+            })
+          });
+          const data = await res.json();
+          if (data.status === "success") {
+            const dlName = (data.vision && data.vision.filename) ? data.vision.filename : "";
+            appendBubble("assistant", data.response, "", dlName);
+          } else {
+            appendBubble("assistant", "[VISION Error]: " + (data.message || "Scan failed."));
+          }
+        } catch (err) {
+          appendBubble("assistant", "[VISION Offline]: Could not reach OMEGA server.");
+        }
+        event.target.value = "";
+      };
+      reader.readAsText(file);
+    }
+
+    // --- VISION ONE-CLICK DESKTOP / PC FILE SCANNER ---
+    async function triggerDesktopScan() {
+      if (currentMode !== "AI") switchToAiMode();
+      appendBubble("user", "🖥️ scan pc (VISION Full File Read & Audit)");
+      try {
+        const res = await fetch("/api/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ handle: activeUser || "mayank", prompt: "scan pc" })
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+          appendBubble("assistant", data.response);
+        } else {
+          appendBubble("assistant", "[VISION Scan Error]: " + (data.message || "Scan failed."));
+        }
+      } catch (err) {
+        appendBubble("assistant", "[Offline]: Server unreachable.");
       }
     }
 
@@ -558,10 +686,10 @@
       document.getElementById("modeTag").innerText = "VAULT AI";
       document.getElementById("modeTag").style.color = "var(--accent-cyan)";
       document.getElementById("stageTitle").innerText = "PROJECT OMEGA // ACADEMIC RESEARCH DECK";
-      document.getElementById("deckBadge").innerText = "ARIS CORE ACTIVE";
+      document.getElementById("deckBadge").innerText = "OMEGA + VISION ACTIVE";
       document.getElementById("roomStatusBadge").innerText = "OFF";
       document.getElementById("aiModeBtn").style.display = "none";
-      document.getElementById("queryInput").placeholder = "Command Omega or input scientific query...";
+      document.getElementById("queryInput").placeholder = "Command Omega, build code, or type 'scan pc'...";
 
       fetch("/api/login", {
         method: "POST",
