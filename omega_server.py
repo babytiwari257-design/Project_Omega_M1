@@ -3,6 +3,7 @@ import socketserver
 import json
 import os
 import sys
+import urllib.parse
 
 # Core directory alignment
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -11,6 +12,7 @@ sys.path.append(BASE_DIR)
 from core.vault_manager import authenticate_user, save_user_chat, load_user_chat
 from core.lobby_manager import LobbyManager
 from core.llm_engine import query_omega_brain
+from vision_module import process_omega_response, get_file_path, list_workspace_files
 
 PORT = int(os.environ.get("PORT", 8080))
 WEB_DIR = os.path.join(BASE_DIR, "web")
@@ -22,6 +24,42 @@ class ReusableTCPServer(socketserver.TCPServer):
 class OmegaHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=WEB_DIR, **kwargs)
+
+    def do_GET(self):
+        parsed = urllib.parse.urlparse(self.path)
+        clean_path = parsed.path.rstrip("/")
+
+        # 1. VISION File Download Route (Doston ke liye direct file download)
+        if clean_path.startswith("/vision/download/"):
+            filename = urllib.parse.unquote(clean_path.replace("/vision/download/", "", 1))
+            filepath = get_file_path(filename)
+            if os.path.isfile(filepath):
+                with open(filepath, "rb") as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/octet-stream")
+                self.send_header("Content-Disposition", f'attachment; filename="{os.path.basename(filepath)}"')
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(content)
+            else:
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b"VISION Error: File not found.")
+            return
+
+        # 2. VISION Workspace Files List Route
+        if clean_path == "/api/vision/files":
+            files = list_workspace_files()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps({"status": "success", "files": files}).encode("utf-8"))
+            return
+
+        # Default static web UI serving
+        super().do_GET()
 
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", 0))
@@ -51,7 +89,7 @@ class OmegaHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 response_data = {"status": "error", "message": msg}
 
-        # 2. Omega AI Reasoning Core (With Math Preservation & Sandboxed Memory)
+        # 2. Omega AI Reasoning Core + VISION Auto-File Forge
         elif clean_path in ("/api/query", "/query", "/api/chat", "/chat") or clean_path.endswith(("query", "chat", "ask")):
             handle = req_json.get("handle", "guest").strip().lower()
             prompt = req_json.get("prompt") or req_json.get("query") or req_json.get("message") or ""
@@ -63,11 +101,22 @@ class OmegaHandler(http.server.SimpleHTTPRequestHandler):
                 history = load_user_chat(handle)
                 ai_reply = query_omega_brain(prompt, chat_context=history)
 
+                # VISION Engine: Auto-detect code, fix bugs, verify syntax & save file!
+                vision_info = process_omega_response(prompt, ai_reply, username=handle)
+                if vision_info.get("file_created"):
+                    fname = vision_info["filename"]
+                    v_status = vision_info["status"]
+                    ai_reply += f"\n\n---\n⚡ **[VISION FILE FORGED]** `{fname}` ({v_status})\n📥 **Download Link:** `/vision/download/{fname}`"
+
                 # Persist to local disk
                 save_user_chat(handle, "user", prompt)
                 save_user_chat(handle, "assistant", ai_reply)
 
-                response_data = {"status": "success", "response": ai_reply}
+                response_data = {
+                    "status": "success",
+                    "response": ai_reply,
+                    "vision": vision_info
+                }
 
         # 3. Two-User Tactical Room with Passcode System
         elif clean_path in ("/api/lobby", "/lobby") or clean_path.endswith("lobby"):
@@ -110,10 +159,12 @@ if __name__ == "__main__":
     with ReusableTCPServer(("", PORT), OmegaHandler) as httpd:
         print("========================================")
         print("       PROJECT OMEGA (MARK-1) READY     ")
-        print("        ARCHITECT: ARIS INDUSTRIES      ")
+        print("       VISION CODER ENGINE: ONLINE      ")
+        print("       ARCHITECT: ARIS INDUSTRIES       ")
         print("========================================")
         print(f"[*] Core Server URL   : http://localhost:{PORT}")
         print("[*] Storage Pipeline  : Isolated Local Vaults Active")
+        print("[*] VISION Workspace  : Auto-Fix & File Forge Active")
         print("[*] Tactical Lobby    : Passcode Protected")
         try:
             httpd.serve_forever()
