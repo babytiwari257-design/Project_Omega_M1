@@ -161,7 +161,7 @@
       padding: 16px 22px;
       border-radius: 14px;
       font-size: 15px;
-      line-height: 1.7;
+      line-height: 1.75;
       max-width: 88%;
       word-break: break-word;
     }
@@ -180,6 +180,38 @@
       background: #0d281e;
       border: 1px solid rgba(16, 185, 129, 0.35);
       color: #d1fae5;
+    }
+
+    /* Clean ChatGPT/Gemini Grade Typography & Code Blocks */
+    .msg-content h1, .msg-content h2, .msg-content h3 {
+      color: var(--accent-cyan);
+      margin: 12px 0 6px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .msg-content p { margin: 8px 0; }
+    .msg-content ul, .msg-content ol { margin: 8px 0 8px 22px; }
+    .msg-content li { margin: 4px 0; }
+    .msg-content strong { color: #ffffff; font-weight: 600; }
+    .msg-content code {
+      background: rgba(0, 229, 255, 0.12);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #7dd3fc;
+    }
+    .msg-content pre {
+      background: #070a10;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    .msg-content pre code {
+      background: transparent;
+      padding: 0;
+      color: #e6edf3;
     }
 
     /* VISION Download Button inside Chat */
@@ -204,7 +236,7 @@
 
     /* MathJax Clear HD Formula Display */
     .msg-content mjx-container {
-      margin: 10px 0 !important;
+      margin: 4px 2px !important;
       display: inline-block !important;
       outline: none;
       color: #00e5ff !important;
@@ -450,6 +482,28 @@
       history.forEach(item => appendBubble(item.role, item.content));
     }
 
+    // --- MATHJAX BACKSLASH PROTECTOR + MARKDOWN PARSER ---
+    function renderCleanMarkdownWithMath(rawText) {
+      const mathBlocks = [];
+      let protectedText = rawText.replace(/(\$\$[\s\S]+?\$\$|\\\[[\s\S]+?\\\])/g, (match) => {
+        let clean = match;
+        if (clean.startsWith('\\[')) clean = '$$' + clean.slice(2, -2) + '$$';
+        mathBlocks.push(clean);
+        return `@@MATH_BLOCK_${mathBlocks.length - 1}@@`;
+      });
+
+      protectedText = protectedText.replace(/(\$[^\$\n]+?\$|\\\([\s\S]+?\\\))/g, (match) => {
+        let clean = match;
+        if (clean.startsWith('\\(')) clean = '$' + clean.slice(2, -2) + '$';
+        mathBlocks.push(clean);
+        return `@@MATH_BLOCK_${mathBlocks.length - 1}@@`;
+      });
+
+      let html = marked.parse(protectedText);
+      html = html.replace(/@@MATH_BLOCK_(\d+)@@/g, (_, idx) => mathBlocks[Number(idx)]);
+      return html;
+    }
+
     function appendBubble(role, content, senderName = "", downloadFilename = "") {
       const log = document.getElementById("chatLog");
       const row = document.createElement("div");
@@ -470,7 +524,7 @@
       msg.className = "msg-content";
 
       if (role === "assistant") {
-        msg.innerHTML = marked.parse(content);
+        msg.innerHTML = renderCleanMarkdownWithMath(content);
 
         // Auto-detect download link in text or explicit filename and render clickable button
         let dlFile = downloadFilename;
