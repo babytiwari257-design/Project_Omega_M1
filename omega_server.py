@@ -20,6 +20,11 @@ from vision_module import (
     get_file_path,
     list_workspace_files
 )
+from ultron_module import (
+    needs_ultron_live_search,
+    fetch_ultron_world_knowledge,
+    build_ultron_system_prompt
+)
 
 PORT = int(os.environ.get("PORT", 8080))
 WEB_DIR = os.path.join(BASE_DIR, "web")
@@ -96,16 +101,16 @@ class OmegaHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 response_data = {"status": "error", "message": msg}
 
-        # 2. Omega AI Reasoning Core + VISION Auto-File Forge & Voice Command Trigger
+        # 2. Omega AI + ULTRON World Knowledge + VISION Auto-File Forge
         elif clean_path in ("/api/query", "/query", "/api/chat", "/chat") or clean_path.endswith(("query", "chat", "ask")):
             handle = req_json.get("handle", "guest").strip().lower()
             prompt = req_json.get("prompt") or req_json.get("query") or req_json.get("message") or ""
             prompt = str(prompt).strip()
+            force_ultron = bool(req_json.get("ultron_mode", False))
 
             if not prompt:
                 response_data = {"status": "error", "response": "Empty query received."}
             elif prompt.lower() in ("scan pc", "scan desktop", "read all files", "vision scan"):
-                # Ek command par poore PC ki files auto-read & audit!
                 desktop_report = scan_entire_desktop()
                 bug_list = "\n".join([f"- `{b['name']}` ({b['status']})" for b in desktop_report["buggy_files"]]) or "None — Sabhi files clean hain!"
                 ai_reply = (
@@ -119,7 +124,16 @@ class OmegaHandler(http.server.SimpleHTTPRequestHandler):
                 response_data = {"status": "success", "response": ai_reply, "desktop_scan": desktop_report}
             else:
                 history = load_user_chat(handle)
-                ai_reply = query_omega_brain(prompt, chat_context=history)
+                ultron_active = force_ultron or needs_ultron_live_search(prompt)
+
+                if ultron_active:
+                    live_knowledge = fetch_ultron_world_knowledge(prompt)
+                    ultron_directive = build_ultron_system_prompt(live_knowledge)
+                    enriched_prompt = f"{ultron_directive}\n\nUSER QUERY:\n{prompt}"
+                    ai_reply = query_omega_brain(enriched_prompt, chat_context=history)
+                    ai_reply = f"🌐 **[ULTRON LIVE + WIKIPEDIA ENGINE]**\n\n{ai_reply}"
+                else:
+                    ai_reply = query_omega_brain(prompt, chat_context=history)
 
                 # VISION Engine: Auto-detect code, fix bugs, verify syntax & save file!
                 vision_info = process_omega_response(prompt, ai_reply, username=handle)
@@ -134,10 +148,20 @@ class OmegaHandler(http.server.SimpleHTTPRequestHandler):
                 response_data = {
                     "status": "success",
                     "response": ai_reply,
-                    "vision": vision_info
+                    "vision": vision_info,
+                    "ultron_used": ultron_active
                 }
 
-        # 3. VISION Universal File Scanner & Auto-Corrector (Uploaded File)
+        # 3. Direct ULTRON Live Knowledge Endpoint (Optional API check)
+        elif clean_path == "/api/ultron/search":
+            q = str(req_json.get("query", "")).strip()
+            if not q:
+                response_data = {"status": "error", "message": "Query required."}
+            else:
+                knowledge = fetch_ultron_world_knowledge(q)
+                response_data = {"status": "success", "knowledge": knowledge}
+
+        # 4. VISION Universal File Scanner & Auto-Corrector (Uploaded File)
         elif clean_path == "/api/vision/scan":
             handle = req_json.get("handle", "friend").strip().lower()
             filename = req_json.get("filename", "untitled.txt").strip()
@@ -167,7 +191,7 @@ class OmegaHandler(http.server.SimpleHTTPRequestHandler):
                     "vision": scan_res
                 }
 
-        # 4. VISION Desktop Install Mode: Full PC Scan & Direct Disk Repair
+        # 5. VISION Desktop Install Mode: Full PC Scan & Direct Disk Repair
         elif clean_path == "/api/vision/desktop_scan":
             report = scan_entire_desktop()
             response_data = {"status": "success", "desktop_scan": report}
@@ -177,7 +201,7 @@ class OmegaHandler(http.server.SimpleHTTPRequestHandler):
             fix_res = auto_fix_desktop_file(filepath)
             response_data = {"status": "success" if fix_res.get("success") else "error", "result": fix_res}
 
-        # 5. Two-User Tactical Room with Passcode System
+        # 6. Two-User Tactical Room with Passcode System
         elif clean_path in ("/api/lobby", "/lobby") or clean_path.endswith("lobby"):
             action = req_json.get("action", "")
             room_id = req_json.get("room_id", "alpha").strip().lower()
@@ -217,12 +241,11 @@ class OmegaHandler(http.server.SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     with ReusableTCPServer(("", PORT), OmegaHandler) as httpd:
         print("========================================")
-        print("       PROJECT OMEGA (MARK-1) READY     ")
-        print("       VISION UNIFIED ENGINE: ONLINE    ")
-        print("       ARCHITECT: ARIS INDUSTRIES       ")
+        print("     ARIS INDUSTRIES TRINITY ONLINE     ")
+        print("    OMEGA (M-1) + VISION + ULTRON       ")
         print("========================================")
         print(f"[*] Core Server URL   : http://localhost:{PORT}")
-        print("[*] Storage Pipeline  : Isolated Local Vaults Active")
+        print("[*] ULTRON Engine     : Wikipedia + Live Web Knowledge")
         print("[*] VISION Mode       : Cloud Forge + Desktop Auto-Reader")
         print("[*] Tactical Lobby    : Passcode Protected")
         try:
