@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Omega (M-1) | Aris Industries</title>
+  <link rel="icon" type="image/png" href="/omega_icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#00e5ff">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
   <!-- Markdown Parser -->
@@ -56,8 +59,15 @@
       color: var(--accent-cyan);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       text-shadow: 0 0 14px var(--glow);
+    }
+    .brand-logo {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 0 10px var(--glow);
     }
     .badge {
       font-size: 10px;
@@ -313,6 +323,7 @@
   <!-- Auth Dialog -->
   <div id="authOverlay" class="modal-overlay">
     <div class="modal-card">
+      <img src="/omega_icon.png" alt="Aris Logo" style="width:68px; height:68px; border-radius:14px; border:1px solid var(--accent-cyan); margin-bottom:10px; box-shadow:0 0 20px var(--glow);">
       <h2 style="font-family:'Space Grotesk'; letter-spacing:1px; color:var(--accent-cyan); margin-bottom: 6px;">OMEGA MARK-1</h2>
       <p style="font-size:12px; color:var(--muted); margin-bottom:18px;">Aris Industries Secure Protocol</p>
       <input type="text" id="authHandle" placeholder="User Handle (e.g. mayank)" />
@@ -338,6 +349,7 @@
   <!-- Left Sidebar -->
   <aside>
     <div class="brand-box">
+      <img src="/omega_icon.png" alt="Logo" class="brand-logo">
       <span>OMEGA</span>
       <span class="badge">M-1</span>
     </div>
@@ -348,7 +360,7 @@
       <div>MODE: <span id="modeTag" style="color:var(--accent-cyan);">VAULT AI</span></div>
     </div>
 
-    <!-- VISION & Tactical Action Buttons -->
+    <!-- VISION, PWA Install & Tactical Action Buttons -->
     <button class="action-btn" onclick="triggerFileUpload()">
       <span>📎 SCAN & FIX FILE</span>
       <span style="font-size:10px; color:var(--accent-cyan);">VISION</span>
@@ -361,13 +373,17 @@
       <span>🔗 TACTICAL ROOM</span>
       <span id="roomStatusBadge" style="font-size:10px; color:#10b981;">OFF</span>
     </button>
+    <button class="action-btn" id="installAppBtn" onclick="installOmegaApp()" style="display:none; border-color:var(--accent-cyan); color:var(--accent-cyan);">
+      <span>📲 INSTALL APP</span>
+      <span style="font-size:10px;">AUTO-SYNC</span>
+    </button>
     <button class="action-btn" onclick="switchToAiMode()" id="aiModeBtn" style="display:none;">
       <span>🧠 RETURN TO AI</span>
     </button>
 
     <div style="flex:1;"></div>
     <div style="font-size:11px; color:var(--muted); line-height:1.5; font-family:'JetBrains Mono', monospace;">
-      VISION ENGINE: INTEGRATED<br>AUTO-FIX & FILE FORGE ON
+      ARIS INDUSTRIES // PWA SYNC<br>VISION ENGINE INTEGRATED
     </div>
   </aside>
 
@@ -698,6 +714,27 @@
       }).then(r => r.json()).then(d => {
         renderHistory(d.history || []);
       });
+    }
+
+    // --- PWA DESKTOP APP INSTALLER & CLOUD AUTO-UPDATER ---
+    let deferredPrompt = null;
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(reg => {
+        reg.update();
+      }).catch(() => {});
+    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById('installAppBtn');
+      if (btn) btn.style.display = 'flex';
+    });
+    async function installOmegaApp() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('installAppBtn').style.display = 'none';
     }
   </script>
 </body>
